@@ -18,7 +18,7 @@
 	<body>		
 		<script>
 			//Variaveis do Jogo
-			var canvas, ctx, ALTURA, LARGURA, maxPulos=3,	velocidade = 10, estadoAtual, record, img,
+			var canvas, ctx, ALTURA, LARGURA, maxPulos=3, VELOCIDADE = 6, estadoAtual, record, img, 
 
 			estados = {
 				jogar: 0,
@@ -33,33 +33,39 @@
 				//cor: "#ffdf70",
 
 				atualiza: function(){
-					spriteChao.x += velocidade;
+					this.x -= VELOCIDADE;
+					if(this.x <= -30)
+						this.x = 0;
 				},
 
 				desenha: function(){
 					spriteChao.desenha(this.x, this.y);
+					spriteChao.desenha(this.x + spriteChao.largura, this.y);
 					//ctx.fillStyle = this.cor;
 					//ctx.fillRect(0, this.y, LARGURA, this.altura);
-				},
+				}
 			};
 
 			bloco = {
 				x: 50,
 				y: 0,
-				largura: spriteBoneco.largura,
 				altura: spriteBoneco.altura,
-				cor: "#ff4e4e",
-				gravidade: 1,
-				velocidade: 2,
-				forcaDoPulo: 20,
+				largura: spriteBoneco.largura,
+				//cor: "#ff4e4e",
+				gravidade: 1.6,
+				velocidade: 0,
+				forcaDoPulo: 23.6,
 				qntPulos: 0,
 				score: 0,
 				rotacao: 0,
 
+				vidas: 3,
+				colidindo: false,
+
 				atualiza: function(){
 					this.velocidade += this.gravidade;
 					this.y += this.velocidade;
-					this.rotacao += Math.PI / 180 * velocidade;
+					this.rotacao += Math.PI / 180 * VELOCIDADE;
 
 					if (this.y > chao.y - this.altura && estadoAtual != estados.perdeu){
 						this.y = chao.y - this.altura;
@@ -80,11 +86,13 @@
 					this.y = 0;
 					
 					if (this.score > record){
-						localStorage.setItem("record", this.score);
 						record = this.score;
+						localStorage.setItem("record", this.score);
 					}
 
+					this.vidas = 3;
 					this.score = 0;
+
 				},
 
 				desenha: function(){
@@ -97,24 +105,24 @@
 					spriteBoneco.desenha(-this.largura / 2, -this.altura / 2);
 					ctx.restore();
 					//spriteBoneco.desenha(this.x, this.y);
-				},
-			};
+				}
+			},
 			
 			obstaculos = {
 				_obs: [],
-				cores: ["#ffbc1c","#ff1c1c","#ff85e1","#52a7ff","#78ff5d"],
+				cores: ["#ffbc1c","#ff1c1c","#ff85e1","#52a7ff","#78ff5d"],				
 				tempoInsere: 0,
 
 				insere: function() {
 					this._obs.push({
 						x: LARGURA,
 						//largura: 30 + Math.floor(21 * Math.random()),
-						largura: 40,
-						altura: 10 + Math.floor(120 * Math.random()),
+						largura: 50,
+						altura: 30 + Math.floor(120 * Math.random()),
 						cor: this.cores[Math.floor(5 * Math.random())],
 					});
 
-					this.tempoInsere = 50 + Math.floor(10 * Math.random());
+					this.tempoInsere = 30 + Math.floor(20 * Math.random());
 				},
 
 				atualiza: function(){
@@ -125,15 +133,25 @@
 					
 					for (var i = 0, tam = this._obs.length; i < tam; i++){
 						var obs = this._obs[i];
+						obs.x -= VELOCIDADE;
 
-						obs.x -= velocidade;
+						if(!bloco.colidindo && bloco.x < obs.x + obs.largura && bloco.x + bloco.largura >= obs.x && bloco.y + bloco.altura >= chao.y - obs.altura){
+							
+							bloco.colidindo = true;
 
-						if(bloco.x < obs.x + obs.largura && bloco.x + bloco.largura >= obs.x && bloco.y + bloco.altura >= chao.y - obs.altura)
-							estadoAtual = estados.perdeu;
-						
-						else if(obs.x == 0){
-							bloco.score++;
+							setTimeout(function(){
+								bloco.colidindo = false;
+							}, 500);
+
+							if (bloco.vidas >= 1)
+								bloco.vidas--;
+							
+							else
+								estadoAtual = estados.perdeu;
 						}
+						
+						else if(obs.x == 0)
+							bloco.score++;
 
 						else if (obs.x <= -obs.largura){
 							this._obs.splice(i, 1);
@@ -214,7 +232,6 @@
 					obstaculos.atualiza();
 
 				chao.atualiza();
-
 				bloco.atualiza();
 			}	
 
@@ -224,10 +241,14 @@
 				bg.desenha(0,0);
 
 				ctx.fillStyle = "#fff";
-				ctx.font = "50px Arial";
-				ctx.fillText(bloco.score, 30, 60);
+				ctx.font = "60px Arial";
+				ctx.fillText(bloco.score, 30, 68);
 
-				if(estadoAtual == estados.jogar){
+				ctx.fillStyle = "#fff";
+				ctx.font = "60px Arial";
+				ctx.fillText(bloco.vidas, 530, 68);
+
+				/*if(estadoAtual == estados.jogar){
 					ctx.fillStyle = "green";
 					ctx.fillRect(LARGURA / 2 - 50, ALTURA / 2 - 50, 100, 100);	
 				}
@@ -263,13 +284,34 @@
 					ctx.restore();
 				}
 				
-				else if(estadoAtual == estados.jogando)
+				else*/ 
+				if(estadoAtual == estados.jogando)
 					obstaculos.desenha();
-						
+			
 				chao.desenha();
 				bloco.desenha();
-			}
 
+				if(estadoAtual == estados.jogar)
+					jogar.desenha(LARGURA / 2 - jogar.largura / 2, ALTURA / 2 - jogar.altura / 2);
+				
+				if(estadoAtual == estados.perdeu){
+					perdeu.desenha(LARGURA / 2 - perdeu.largura / 2, ALTURA / 2 - perdeu.altura / 2 - spriteRecord.altura / 2);			
+						
+					spriteRecord.desenha(LARGURA / 2 - spriteRecord.largura / 2, ALTURA / 2 + perdeu.altura / 2 - spriteRecord.altura / 2 - 25); 
+
+					ctx.fillStyle = "#fff";
+					ctx.fillText(bloco.score, 375, 390);
+
+					if (bloco.score > record){
+						novo.desenha(LARGURA / 2 - 180, ALTURA / 2 + 30);
+						ctx.fillText(bloco.score, 445, 470);
+					}
+
+					else
+						ctx.fillText(record, 410, 470);
+				}
+			}
+			
 			//inicializa o jogo
 			main();
 		</script>
