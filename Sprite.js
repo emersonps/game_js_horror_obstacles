@@ -18,3 +18,8 @@ novo = new Sprite(68, 721, 287, 93);
 spriteRecord = new Sprite(28, 879, 441, 95);
 spriteChao = new Sprite(0, 604, 600, 54);
 
+redObstacle = new Sprite(662, 867, 50, 120),
+pinkObstacle = new Sprite(719, 867, 50, 120),
+blueObstacle = new Sprite(779, 867, 50, 120),
+greenObstacle = new Sprite(839, 867, 50, 120),
+yellowObstacle = new Sprite(898, 867, 50, 120);
