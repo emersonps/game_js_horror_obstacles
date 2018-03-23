@@ -20,7 +20,7 @@
 			//variáveis do jogo
 			var canvas, ctx, ALTURA, LARGURA, VELOCIDADE = 6, maxPulos = 3, estadoAtual, record, img,
 
-			pontosParaNovaFase = [5, 10, 15, 20],
+			pontosParaNovaFase = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100],
 			faseAtual = 0,
 
 			labelNovaFase = {
@@ -54,7 +54,8 @@
 			estados = {
 				jogar: 0,
 				jogando: 1,
-				perdeu: 2
+				perdeu: 2,
+				venceu: 3,
 			},
 
 			chao = {
@@ -82,8 +83,8 @@
 				altura: spriteBoneco.altura,
 				largura: spriteBoneco.largura,
 				gravidade: 1.6,
-				velocidade: 0,
-				forcaDoPulo: 23.6,
+				velocidade: 10,
+				forcaDoPulo: 24,
 				qntPulos: 0,
 				score: 0,
 				rotacao: 0,
@@ -130,7 +131,7 @@
 				desenha: function() {
 					ctx.save();
 					ctx.translate(this.x + this.largura / 2, this.y + this.altura / 2);
-					ctx.rotate(this.rotacao);
+					//ctx.rotate(this.rotacao);
 					spriteBoneco.desenha(-this.largura / 2, -this.altura / 2);
 					ctx.restore();
 				}
@@ -189,6 +190,8 @@
 							if (faseAtual < pontosParaNovaFase.length &&
 								 bloco.score == pontosParaNovaFase[faseAtual])
 								passarDeFase();
+							if (faseAtual == 100)
+								estadoAtual = estados.venceu; 
 						}
 
 						else if (obj.x <= -obj.largura) {
@@ -234,8 +237,23 @@
 				faseAtual++;
 				bloco.vidas++;
 
-				if(faseAtual == 4)
+				if(faseAtual == 5)
 					bloco.gravidade *= 0.6;
+
+				if(faseAtual == 10)
+					bloco.gravidade = 1.6;
+
+				if(faseAtual == 20)
+					bloco.gravidade *= 0.6;
+
+				if(faseAtual == 30)
+					bloco.gravidade = 1.6;
+
+				if(faseAtual == 40)
+					bloco.gravidade *= 0.6;
+
+				if(faseAtual == 50)
+					bloco.gravidade = 1.6;
 
 				labelNovaFase.texto = "Level " + faseAtual;
 				labelNovaFase.fadeIn(0.4);
@@ -295,13 +313,16 @@
 			function desenha() {
 				bg.desenha(0, 0);
 
-				ctx.fillStyle = "#fff";
-				ctx.font = "50px Arial";
+				ctx.fillStyle = "#000";
+				ctx.font = "50px Arial Black";
 				ctx.fillText(bloco.score, 30, 68);
 				ctx.fillText(bloco.vidas, 540, 68);
 
 				ctx.fillStyle = "rgba(0, 0, 0, " + labelNovaFase.opacidade + ")";
 				ctx.fillText(labelNovaFase.texto, canvas.width / 2 - ctx.measureText(labelNovaFase.texto).width / 2, canvas.height / 3);
+
+				if (estadoAtual == estados.venceu)
+					labelNovaFase.texto = "PARABÉNS - Dê F5";
 
 				if (estadoAtual == estados.jogando)
 					obstaculos.desenha();

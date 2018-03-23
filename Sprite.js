@@ -10,7 +10,6 @@ function Sprite(x, y, largura, altura){
 }
 
 var bg = new Sprite(0, 0, 600, 600);
-spriteBoneco = new Sprite(618,16, 86, 86);
 
 perdeu = new Sprite(603, 478, 397, 358);
 jogar = new Sprite(603, 127, 397, 347);
@@ -23,3 +22,5 @@ pinkObstacle = new Sprite(719, 867, 50, 120),
 blueObstacle = new Sprite(779, 867, 50, 120),
 greenObstacle = new Sprite(839, 867, 50, 120),
 yellowObstacle = new Sprite(898, 867, 50, 120);
+
+spriteBoneco = new Sprite(646,17, 50, 86);
